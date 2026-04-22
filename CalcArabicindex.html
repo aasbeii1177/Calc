@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أدوات الطباعة والتغليف</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 650px; margin: auto; background-color: #f4f4f9; color: #333; }
+        
+        .tab-container { display: flex; margin-bottom: 20px; background: #ddd; border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+        .tab-btn { flex: 1 1 15%; padding: 12px 2px; border: none; background: transparent; font-size: 13px; font-weight: bold; color: #555; cursor: pointer; transition: background 0.3s; text-align: center; }
+        .tab-btn:hover { background: #ccc; }
+        .tab-btn.active { background: #3498db; color: white; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #2c3e50; }
+        h4 { margin-bottom: 5px; color: #34495e; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        .hint { font-size: 12px; color: #7f8c8d; margin-top: 2px; display: block; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        .checkbox-container { margin-top: 20px; display: flex; align-items: center; background: #e8f6f3; padding: 10px; border-radius: 4px; border-right: 4px solid #1abc9c; }
+        .checkbox-container input { width: auto; margin-left: 10px; margin-right: 0; transform: scale(1.2); }
+        
+        button.calc-btn { margin-top: 20px; width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button.calc-btn:hover { background-color: #2980b9; }
+        button.weight-btn { background-color: #27ae60; }
+        button.weight-btn:hover { background-color: #2ecc71; }
+        button.roll-btn { background-color: #8e44ad; }
+        button.roll-btn:hover { background-color: #9b59b6; }
+        button.count-btn { background-color: #e67e22; }
+        button.count-btn:hover { background-color: #d35400; }
+        button.pack-btn { background-color: #c0392b; }
+        button.pack-btn:hover { background-color: #e74c3c; }
+        button.opt-btn { background-color: #f39c12; }
+        button.opt-btn:hover { background-color: #d68910; }
+        
+        .results { margin-top: 25px; padding: 15px; background-color: #e8f6f3; border-right: 4px solid #1abc9c; border-radius: 4px; display: none; }
+        .results-weight { background-color: #eafaf1; border-right-color: #27ae60; }
+        .results-roll { background-color: #f5eef8; border-right-color: #8e44ad; }
+        .results-count { background-color: #fef5e7; border-right-color: #e67e22; }
+        .results-pack { background-color: #fdedec; border-right-color: #c0392b; }
+        .results-opt { background-color: #fef9e7; border-right-color: #f39c12; }
+        
+        .yield { font-size: 0.9em; color: #555; margin-top: 5px; line-height: 1.4; }
+        .highlight { font-size: 1.4em; font-weight: bold; margin-top: 5px; display: block; }
+        .hl-green { color: #27ae60; }
+        .hl-purple { color: #8e44ad; }
+        .hl-orange { color: #e67e22; }
+        .hl-red { color: #c0392b; }
+        
+        .rank-item { background: white; padding: 15px; margin-top: 10px; border-radius: 4px; border: 1px solid #ddd; }
+        .rank-1 { border-right: 4px solid #27ae60; background: #f4fdf8; }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold; margin-left: 5px; }
+        .pill-main { background: #d4e6f1; color: #2980b9; }
+        .pill-sec { background: #fadbd8; color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="tab-container">
+    <button class="tab-btn" id="btn-gang" onclick="switchTab('gang')">تجميع الطباعة</button>
+    <button class="tab-btn" id="btn-weight" onclick="switchTab('weight')">الوزن</button>
+    <button class="tab-btn" id="btn-count" onclick="switchTab('count')">عدد الأطباق</button>
+    <button class="tab-btn" id="btn-roll" onclick="switchTab('roll')">الرول</button>
+    <button class="tab-btn" id="btn-pack" onclick="switchTab('pack')">التعبئة</button>
+    <button class="tab-btn active" id="btn-opt" onclick="switchTab('opt')" style="background-color: #f39c12; color:white;">مُحسّن القص</button>
+</div>
+
+<div id="tab-gang" class="tab-content">
+    <div class="card">
+        <h2>حاسبة تجميع الطباعة</h2>
+        <label>كمية العلب العادية المطلوبة:</label> <input type="number" id="regQty" placeholder="مثال: 70000">
+        <label>كمية العينات المجانية المطلوبة:</label> <input type="number" id="sampQty" placeholder="مثال: 15000">
+        <label>إجمالي عدد القوالب (العلب) في الطبق:</label> <input type="number" id="spots" placeholder="مثال: 20">
+        <button class="calc-btn" onclick="calculateLayout()">حساب التوزيع</button>
+        <div id="resultBox" class="results">
+            <h3 style="margin-top:0;">خطة الطباعة المثلى</h3>
+            <p><strong>التوزيع:</strong> <span id="outLayout"></span></p>
+            <p><strong>إجمالي الأطباق المراد طباعتها:</strong> <span id="outSheets"></span></p>
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 15px 0;">
+            <p class="yield">العلب العادية: <span id="outRegYield"></span> <span id="outRegExtra"></span></p>
+            <p class="yield">العينات المجانية: <span id="outSampYield"></span> <span id="outSampExtra"></span></p>
+        </div>
+    </div>
+</div>
+
+<div id="tab-weight" class="tab-content">
+    <div class="card">
+        <h2>حاسبة وزن الورق</h2>
+        <label>إجمالي عدد الأطباق:</label> <input type="number" id="wSheets" placeholder="مثال: 5000">
+        <label>عرض الطبق (سم):</label> <input type="number" id="wWidth" placeholder="مثال: 70">
+        <label>طول الطبق (سم):</label> <input type="number" id="wLength" placeholder="مثال: 94">
+        <label>وزن الورق (جرام/م٢ - GSM):</label> <input type="number" id="wGsm" placeholder="مثال: 300">
+        <button class="calc-btn weight-btn" onclick="calculateWeight()">حساب الوزن الإجمالي</button>
+        <div id="weightResultBox" class="results results-weight">
+            <h3 style="margin-top:0;">المواد المطلوبة</h3>
+            <p><strong>الوزن الإجمالي:</strong> <span id="outKg" class="highlight hl-green"></span></p>
+        </div>
+    </div>
+</div>
+
+<div id="tab-count" class="tab-content">
+    <div class="card">
+        <h2>التحقق من كمية المورد (عدد الأطباق)</h2>
+        <label>إجمالي وزن الطلبية (كجم):</label> <span class="hint">استخدم الوزن الصافي للورق (بدون الطبليات الخشبية)</span> <input type="number" id="scKg" placeholder="مثال: 4000">
+        <label>عرض الطبق (سم):</label> <input type="number" id="scWidth" placeholder="مثال: 65">
+        <label>طول الطبق (سم):</label> <input type="number" id="scLength" placeholder="مثال: 90">
+        <label>وزن الورق (جرام/م٢ - GSM):</label> <input type="number" id="scGsm" placeholder="مثال: 250">
+        <button class="calc-btn count-btn" onclick="calculateSheetCount()">التحقق من عدد الأطباق</button>
+        <div id="countResultBox" class="results results-count">
+            <h3 style="margin-top:0;">المخزون المتوقع</h3>
+            <p><strong>إجمالي عدد الأطباق:</strong> <span id="outSheetCount" class="highlight hl-orange"></span></p>
+            <p class="yield" id="outSingleWeight"></p>
+        </div>
+    </div>
+</div>
+
+<div id="tab-roll" class="tab-content">
+    <div class="card">
+        <h2>حاسبة تحويل الرول إلى أطباق</h2>
+        <div class="row">
+            <div class="col"><label>عرض الرول (سم):</label> <input type="number" id="rWidth" placeholder="مثال: 130"></div>
+            <div class="col"><label>طول الرول (متر):</label> <input type="number" id="rLength" placeholder="مثال: 4200"></div>
+        </div>
+        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
+        <div class="row">
+            <div class="col"><label>عرض الطبق النهائي (سم):</label> <input type="number" id="sWidth" placeholder="مثال: 65"></div>
+            <div class="col"><label>طول القص (سم):</label> <input type="number" id="sLength" placeholder="مثال: 90"></div>
+        </div>
+        <button class="calc-btn roll-btn" onclick="calculateRoll()">حساب كمية الأطباق</button>
+        <div id="rollResultBox" class="results results-roll">
+            <h3 style="margin-top:0;">إنتاجية القص</h3>
+            <p><strong>إجمالي الأطباق الناتجة:</strong> <span id="outRollYield" class="highlight hl-purple"></span></p>
+            <p class="yield" id="outRollDetails"></p>
+        </div>
+    </div>
+</div>
+
+<div id="tab-pack" class="tab-content">
+    <div class="card">
+        <h2>أداة تعبئة الكراتين 3D</h2>
+        <span class="hint">تأكد من استخدام نفس وحدة القياس لجميع الأبعاد (مثلاً: سم)</span>
+        
+        <h4>كرتونة الشحن (الأبعاد الداخلية)</h4>
+        <div class="row">
+            <div class="col"><label>الطول:</label> <input type="number" id="cL" placeholder="طول"></div>
+            <div class="col"><label>العرض:</label> <input type="number" id="cW" placeholder="عرض"></div>
+            <div class="col"><label>الارتفاع:</label> <input type="number" id="cH" placeholder="ارتفاع"></div>
+        </div>
+
+        <h4 style="margin-top: 15px;">العلبة / المنتج (الأبعاد الخارجية)</h4>
+        <div class="row">
+            <div class="col"><label>الطول:</label> <input type="number" id="dL" placeholder="طول"></div>
+            <div class="col"><label>العرض:</label> <input type="number" id="dW" placeholder="عرض"></div>
+            <div class="col"><label>الارتفاع:</label> <input type="number" id="dH" placeholder="ارتفاع"></div>
+        </div>
+
+        <div class="checkbox-container" style="border-right-color: #c0392b; background: #fdedec;">
+            <input type="checkbox" id="keepUpright" checked>
+            <label for="keepUpright" style="margin: 0; font-weight: normal;"><strong>إبقاء العلب بشكل عمودي</strong> (تجنب قلب العلبة على ظهرها أو جنبها)</label>
+        </div>
+
+        <button class="calc-btn pack-btn" onclick="calculatePacker()">حساب أقصى تعبئة</button>
+
+        <div id="packResultBox" class="results results-pack">
+            <h3 style="margin-top:0;">التوزيع الأمثل للتعبئة</h3>
+            <p><strong>السعة القصوى:</strong> <span id="outPackQty" class="highlight hl-red"></span></p>
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 15px 0;">
+            <p><strong>الاتجاه المستخدم:</strong> <span id="outPackDesc" style="font-weight: bold;"></span></p>
+            <p class="yield" id="outPackGrid"></p>
+            <p class="yield" style="color: #c0392b;" id="outPackWarning"></p>
+        </div>
+    </div>
+</div>
+
+<div id="tab-opt" class="tab-content active">
+    <div class="card">
+        <h2>مُحسّن قص الرولات المتقدم</h2>
+        <span class="hint">ابحث عن أفضل استخدام للرول، بما في ذلك القصات الإضافية لتقليل الهدر.</span>
+        
+        <div class="row">
+            <div class="col"><label>عرض الطبق الأساسي (سم):</label> <input type="number" id="optSW" value="66"></div>
+            <div class="col"><label>طول القص الأساسي (سم):</label> <input type="number" id="optSL" value="93"></div>
+        </div>
+
+        <label>عروض القصات الإضافية (سم) [اختياري]:</label>
+        <span class="hint">افصل بين الأرقام بفاصلة. سيحاول النظام الاستفادة من الهدر لصالح هذه المقاسات.</span>
+        <input type="text" id="optSecW" value="62">
+
+        <label>الرولات المتوفرة في المخزن (سم):</label>
+        <input type="text" id="optRolls" value="110, 113, 117, 120, 122, 125, 130, 135, 140, 144, 145, 150, 160">
+
+        <button class="calc-btn opt-btn" onclick="optimizeRolls()">ترتيب أفضل الرولات</button>
+
+        <div id="optResultBox" class="results results-opt">
+            <h3 style="margin-top:0;">خطط الإنتاج المثلى</h3>
+            <div id="optRankings"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* const firebaseConfig = { apiKey: "XXXXXXXXXX", authDomain: "your-app.firebaseapp.com" };
+    */
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.backgroundColor = 'transparent'; 
+            btn.style.color = '#555';
+        });
+        
+        document.getElementById('tab-' + tabId).classList.add('active');
+        let activeBtn = document.getElementById('btn-' + tabId);
+        activeBtn.classList.add('active');
+        
+        if(tabId === 'opt') { activeBtn.style.backgroundColor = '#f39c12'; activeBtn.style.color = 'white'; }
+        else if(tabId === 'pack') { activeBtn.style.backgroundColor = '#c0392b'; activeBtn.style.color = 'white'; }
+    }
+
+    // Tab 1: Gang Run Math
+    function calculateLayout() {
+        let regQty = parseInt(document.getElementById('regQty').value), sampQty = parseInt(document.getElementById('sampQty').value), spots = parseInt(document.getElementById('spots').value);
+        if(!regQty || !sampQty || !spots) return;
+        let totalQty = regQty + sampQty, regSpots = Math.round((regQty / totalQty) * spots), sampSpots = spots - regSpots; 
+        if (regSpots === 0 && regQty > 0) { regSpots = 1; sampSpots = spots - 1; }
+        if (sampSpots === 0 && sampQty > 0) { sampSpots = 1; regSpots = spots - 1; }
+        let totalSheets = Math.max(Math.ceil(regQty / regSpots), Math.ceil(sampQty / sampSpots));
+        
+        document.getElementById('outLayout').innerText = regSpots + " عادي / " + sampSpots + " عينات";
+        document.getElementById('outSheets').innerText = totalSheets.toLocaleString();
+        document.getElementById('outRegYield').innerText = (totalSheets * regSpots).toLocaleString();
+        document.getElementById('outRegExtra').innerText = "(+" + ((totalSheets * regSpots) - regQty).toLocaleString() + " إضافي)";
+        document.getElementById('outSampYield').innerText = (totalSheets * sampSpots).toLocaleString();
+        document.getElementById('outSampExtra').innerText = "(+" + ((totalSheets * sampSpots) - sampQty).toLocaleString() + " إضافي)";
+        document.getElementById('resultBox').style.display = 'block';
+    }
+
+    // Tab 2: Weight Math
+    function calculateWeight() {
+        let sheets = parseFloat(document.getElementById('wSheets').value), width = parseFloat(document.getElementById('wWidth').value), length = parseFloat(document.getElementById('wLength').value), gsm = parseFloat(document.getElementById('wGsm').value);
+        if(!sheets || !width || !length || !gsm) return;
+        document.getElementById('outKg').innerText = ((sheets * width * length * gsm) / 10000000).toFixed(2) + " كجم";
+        document.getElementById('weightResultBox').style.display = 'block';
+    }
+
+    // Tab 3: Sheet Count Math
+    function calculateSheetCount() {
+        let totalKg = parseFloat(document.getElementById('scKg').value), width = parseFloat(document.getElementById('scWidth').value), length = parseFloat(document.getElementById('scLength').value), gsm = parseFloat(document.getElementById('scGsm').value);
+        if(!totalKg || !width || !length || !gsm) return;
+        let singleSheetKg = (width * length * gsm) / 10000000;
+        document.getElementById('outSheetCount').innerText = Math.round(totalKg / singleSheetKg).toLocaleString() + " طبق";
+        document.getElementById('outSingleWeight').innerText = "تم الحساب بناءً على " + (singleSheetKg * 1000).toFixed(2) + " جرام لوزن الطبق الواحد.";
+        document.getElementById('countResultBox').style.display = 'block';
+    }
+
+    // Tab 4: Roll Converter Math
+    function calculateRoll() {
+        let rWidth = parseFloat(document.getElementById('rWidth').value), rLength = parseFloat(document.getElementById('rLength').value), sWidth = parseFloat(document.getElementById('sWidth').value), sLength = parseFloat(document.getElementById('sLength').value);
+        if(!rWidth || !rLength || !sWidth || !sLength) return;
+        let chops = Math.floor((rLength * 100) / sLength), lanes = Math.floor(rWidth / sWidth), leftoverWidth = rWidth - (lanes * sWidth);
+        document.getElementById('outRollYield').innerText = (chops * lanes).toLocaleString() + " طبق";
+        document.getElementById('outRollDetails').innerText = "ناتج عن " + chops.toLocaleString() + " قصة عرضية مقسمة إلى " + lanes + " مسار(مسارات) بالعرض." + (leftoverWidth > 0 ? " يتبقى " + leftoverWidth + " سم هدر جانبي." : "");
+        document.getElementById('rollResultBox').style.display = 'block';
+    }
+
+    // Tab 5: Case Packer Math
+    function calculatePacker() {
+        let cL = parseFloat(document.getElementById('cL').value), cW = parseFloat(document.getElementById('cW').value), cH = parseFloat(document.getElementById('cH').value);
+        let dL = parseFloat(document.getElementById('dL').value), dW = parseFloat(document.getElementById('dW').value), dH = parseFloat(document.getElementById('dH').value);
+        let keepUpright = document.getElementById('keepUpright').checked;
+
+        if(!cL || !cW || !cH || !dL || !dW || !dH) return;
+
+        let rotations = keepUpright ? [
+            { l: dL, w: dW, h: dH, desc: "قياسي (مواجهة الكرتونة بشكل عادي)" },
+            { l: dW, w: dL, h: dH, desc: "تدوير 90 درجة (العلبة بالعرض)" }
+        ] : [
+            { l: dL, w: dW, h: dH, desc: "عمودي قياسي" },
+            { l: dW, w: dL, h: dH, desc: "عمودي بتدوير 90 درجة" },
+            { l: dL, w: dH, h: dW, desc: "نائم على الجنب (بالطول)" },
+            { l: dH, w: dL, h: dW, desc: "نائم على الجنب (بالعرض)" },
+            { l: dW, w: dH, h: dL, desc: "مسطح على الظهر (بالعرض)" },
+            { l: dH, w: dW, h: dL, desc: "مسطح على الظهر (بالطول)" }
+        ];
+
+        let bestYield = 0, bestConfig = null;
+        rotations.forEach(rot => {
+            let cols = Math.floor(cL / rot.l), rows = Math.floor(cW / rot.w), layers = Math.floor(cH / rot.h);
+            let total = cols * rows * layers;
+            if (total > bestYield) { bestYield = total; bestConfig = { cols, rows, layers, desc: rot.desc, rotL: rot.l, rotW: rot.w, rotH: rot.h }; }
+        });
+
+        if (bestYield === 0) {
+            document.getElementById('outPackQty').innerText = "0 علبة";
+            document.getElementById('outPackDesc').innerText = "لا تتسع.";
+            document.getElementById('outPackGrid').innerText = "";
+            document.getElementById('outPackWarning').innerText = "";
+        } else {
+            document.getElementById('outPackQty').innerText = bestYield + " علبة في الكرتونة";
+            document.getElementById('outPackDesc').innerText = bestConfig.desc;
+            document.getElementById('outPackGrid').innerText = "التوزيع: " + bestConfig.cols + " بالطول × " + bestConfig.rows + " بالعرض × " + bestConfig.layers + " طبقات بالارتفاع.";
+            if ((cL - (bestConfig.cols * bestConfig.rotL)) < 0.5 || (cW - (bestConfig.rows * bestConfig.rotW)) < 0.5 || (cH - (bestConfig.layers * bestConfig.rotH)) < 0.5) {
+                document.getElementById('outPackWarning').innerText = "⚠️ تنبيه: المقاس ضيق جداً! تأكد من أنك استخدمت الأبعاد الداخلية الدقيقة وراعت التفاوت المسموح للورق.";
+            } else { document.getElementById('outPackWarning').innerText = ""; }
+        }
+        document.getElementById('packResultBox').style.display = 'block';
+    }
+
+    // Tab 6: Advanced Roll Optimizer Math
+    function optimizeRolls() {
+        let sW = parseFloat(document.getElementById('optSW').value), sL = parseFloat(document.getElementById('optSL').value);
+        let secWStr = document.getElementById('optSecW').value, rollsStr = document.getElementById('optRolls').value;
+        if(!sW || !sL || !rollsStr) return;
+
+        let rolls = rollsStr.split(',').map(r => parseFloat(r.trim())).filter(r => !isNaN(r) && r > 0);
+        let secWidths = secWStr ? secWStr.split(',').map(r => parseFloat(r.trim())).filter(r => !isNaN(r) && r > 0) : [];
+        secWidths.sort((a,b) => b - a); 
+
+        let results = [];
+        rolls.forEach(roll => {
+            let lanesA = Math.floor(roll / sW);
+            if (lanesA > 0) {
+                let currentWasteA = roll - (lanesA * sW), secYieldsA = [];
+                secWidths.forEach(secW => {
+                    if (currentWasteA >= secW) {
+                        let secLanes = Math.floor(currentWasteA / secW);
+                        secYieldsA.push({width: secW, count: secLanes});
+                        currentWasteA -= (secLanes * secW);
+                    }
+                });
+                results.push({ roll: roll, desc: "قياسي (قص عرضي كل " + sL + " سم)", mainLanes: lanesA, mainWidth: sW, secYields: secYieldsA, trueWaste: currentWasteA, wastePct: (currentWasteA / roll) * 100 });
+            }
+
+            if (sW !== sL) {
+                let lanesB = Math.floor(roll / sL);
+                if (lanesB > 0) {
+                    let currentWasteB = roll - (lanesB * sL), secYieldsB = [];
+                    secWidths.forEach(secW => {
+                        if (currentWasteB >= secW) {
+                            let secLanes = Math.floor(currentWasteB / secW);
+                            secYieldsB.push({width: secW, count: secLanes});
+                            currentWasteB -= (secLanes * secW);
+                        }
+                    });
+                    results.push({ roll: roll, desc: "تدوير 90° (قص عرضي كل " + sW + " سم)", mainLanes: lanesB, mainWidth: sL, secYields: secYieldsB, trueWaste: currentWasteB, wastePct: (currentWasteB / roll) * 100 });
+                }
+            }
+        });
+
+        results.sort((a, b) => a.wastePct - b.wastePct);
+
+        let outputHTML = "";
+        if (results.length === 0) {
+            outputHTML = "<p>لا توجد رولات بعرض كافٍ.</p>";
+        } else {
+            results.slice(0, 5).forEach((res, index) => {
+                let rankClass = index === 0 ? "rank-1" : "";
+                let label = index === 0 ? "🏆 <strong>الخيار الأفضل</strong>" : "#" + (index + 1);
+                let secondaryText = "";
+                res.secYields.forEach(sec => { secondaryText += `<span class="pill pill-sec">${sec.count}x قص إضافي (${sec.width}سم)</span> `; });
+
+                outputHTML += `
+                <div class="rank-item ${rankClass}">
+                    <p style="margin:0; font-size:1.1em;">${label} — <strong>رول ${res.roll} سم</strong></p>
+                    <p class="yield"><strong>الخطة:</strong> ${res.desc}</p>
+                    <p class="yield" style="margin-top:10px;">
+                        <span class="pill pill-main">${res.mainLanes}x قص أساسي (${res.mainWidth}سم)</span> ${secondaryText}
+                    </p>
+                    <p class="yield" style="color:${res.trueWaste > 5 ? '#e74c3c' : '#27ae60'}; margin-top:8px;">
+                        <strong>الهدر الفعلي:</strong> ${res.trueWaste} سم
+                    </p>
+                </div>`;
+            });
+        }
+        document.getElementById('optRankings').innerHTML = outputHTML;
+        document.getElementById('optResultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
